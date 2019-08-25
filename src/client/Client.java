@@ -20,7 +20,7 @@ public class Client {
 
 	private void executeClient() {
 		Scanner scanner = new Scanner(System.in);
-		String command = null, response = null, input = null, username = null;
+		String command = null, response = null, input = null;
 		String[] tokens = null;
 		Connection conn = new Connection();
 		Socket socket = conn.getClientTCPConnection(Client.remoteIP, Client.remotePort, Client.localIP,
@@ -43,14 +43,7 @@ public class Client {
 				if (command.equalsIgnoreCase(Constants.CREATE_USER) && tokens.length == 2) {
 					response = cu.getResponseFromServer();
 					System.out.println("From Server: " + response);
-					if(cu.createUserHome(tokens[1])) {
-						System.out.println("User home dir successfully created at client.");
-					}else {
-						System.out.println("Unable to create user home dir at client.");
-					}
-					if(response.equals(Messages.CREATE_USER_SUCCESS)) {
-						username = tokens[1];
-					}
+					
 				} else if (command.equalsIgnoreCase(Constants.UPLOAD_FILE) && tokens.length == 2) {
 					response = cu.uploadFile(tokens[1]);
 					System.out.println("From Server: " + response);
@@ -89,7 +82,7 @@ public class Client {
 					response = cu.getResponseFromServer();
 					if(response.equals(Messages.COMMAND_VALIDATION_SUCCESS)) {
 						System.out.println("From Server: Starting file downloading..");
-						response = cu.downloadFile(username);
+						response = cu.downloadFile();
 						System.out.println("From Server: "+response);
 					}
 					else {

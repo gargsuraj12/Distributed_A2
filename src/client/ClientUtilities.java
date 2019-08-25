@@ -24,19 +24,20 @@ public class ClientUtilities {
 		this.oos = oos;
 	}
 
-	String getUserHome(String username) {
-		String path = Paths.get("").toAbsolutePath().toString();
-		return path + "/client/users/" + username;
+	String getUserHome() {
+		return Paths.get("").toAbsolutePath().toString();
+		// String path = System.getProperty("user.dir");
 	}
 
-	boolean createUserHome(String username) {
-		String homeDir = getUserHome(username);
-		File dir = new File(homeDir);
-		if (dir.exists()) {
-			return true;
-		}
-		return dir.mkdir();
-	}
+	//
+//	boolean createUserHome(String username) {
+//		String homeDir = getUserHome(username);
+//		File dir = new File(homeDir);
+//		if (dir.exists()) {
+//			return true;
+//		}
+//		return dir.mkdir();
+//	}
 
 	String getResponseFromServer() {
 		String response = null;
@@ -134,17 +135,19 @@ public class ClientUtilities {
 		}
 	}
 
-	String downloadFile(String username) {
+	String downloadFile() {
 		FileOutputStream fos = null;
 		byte[] buffer = new byte[Constants.BUFFER_SIZE];
 		String retValue = null;
-		String filePath = getUserHome(username);
+		String filePath = getUserHome();
+//		System.out.println("User home path is: "+filePath);
+
 		// 1. Read file name.
 		Object o;
 		try {
 			o = ois.readObject();
 			if (o instanceof String) {
-				filePath += "/" + o.toString();
+				filePath += "/"+ o.toString();
 				fos = new FileOutputStream(filePath);
 			} else {
 				return Messages.FILENAME_READ_ERROR;
@@ -177,7 +180,7 @@ public class ClientUtilities {
 			if (retValue != null) {
 				return retValue;
 			}
-			
+
 			Object ob = ois.readObject();
 			if (ob instanceof String) {
 				retValue = (String) ob;
