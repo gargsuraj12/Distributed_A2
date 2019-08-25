@@ -1,7 +1,5 @@
 package server;
 
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -9,7 +7,6 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import common.Constants;
 import common.FileDetails;
@@ -201,7 +198,6 @@ class ClientHandler extends Thread {
 
 public class Server {
 
-	@SuppressWarnings("unchecked")
 	public static void main(String[] args) throws IOException {
 		int localPort = Integer.parseInt(args[0]);
 		@SuppressWarnings("resource")

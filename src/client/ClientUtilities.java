@@ -26,18 +26,7 @@ public class ClientUtilities {
 
 	String getUserHome() {
 		return Paths.get("").toAbsolutePath().toString();
-		// String path = System.getProperty("user.dir");
 	}
-
-	//
-//	boolean createUserHome(String username) {
-//		String homeDir = getUserHome(username);
-//		File dir = new File(homeDir);
-//		if (dir.exists()) {
-//			return true;
-//		}
-//		return dir.mkdir();
-//	}
 
 	String getResponseFromServer() {
 		String response = null;
