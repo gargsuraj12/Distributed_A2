@@ -1,17 +1,23 @@
 package server;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import common.Constants;
 import common.FileDetails;
 import common.Messages;
 
@@ -22,7 +28,13 @@ public class ServerUtilities {
 		String path = Paths.get("").toAbsolutePath().toString();
 		return path+"/server/users/"+username;
 	}
-
+	
+	String getFilePathForUser(String username, String filePath) {
+		String homeDir = getUserHome(username);
+		filePath = homeDir+"/"+filePath;
+		return filePath;
+	}
+	
 	private boolean createOSDirectory(String dirPath) {
 		File dir = new File(dirPath);
 		if(dir.exists()) {
@@ -185,4 +197,103 @@ public class ServerUtilities {
 		return groupDetails; 
 	}
 	
+	String receiveFile(String username, ObjectInputStream ois) throws Exception {
+
+		FileOutputStream fos = null;
+		byte[] buffer = new byte[Constants.BUFFER_SIZE];
+		String retValue = null;
+		String filePath = getUserHome(username);
+		// 1. Read file name.
+		Object o = ois.readObject();
+		if (o instanceof String) {
+			filePath += "/" + o.toString();
+			fos = new FileOutputStream(filePath);
+		} else {
+			return Messages.FILENAME_READ_ERROR;
+		}
+
+		System.out.println("Location where the file to be written: " + filePath);
+
+		// 2. Read file to the end.
+		Integer bytesRead = 0;
+		do {
+			o = ois.readObject();
+			if (!(o instanceof Integer)) {
+				retValue = Messages.CURR_CHUNK_SIZE_READ_ERROR;
+				break;
+			}
+
+			bytesRead = (Integer) o;
+			o = ois.readObject();
+			if (!(o instanceof byte[])) {
+				retValue = Messages.CURR_CHUNK_DATA_READ_ERROR;
+			}
+
+			buffer = (byte[]) o;
+			// 3. Write data to output file.
+			fos.write(buffer, 0, bytesRead);
+
+		} while (bytesRead == Constants.BUFFER_SIZE);
+
+		fos.close();
+		if (retValue != null) {
+			return retValue;
+		}
+		return Messages.FILE_UPLOAD_SUCCESS;
+	}
+
+	
+	
+	String sendFile(String filePath, ObjectOutputStream oos) {
+		
+		File file = new File(filePath);
+		System.out.println("File path to send is: "+filePath);
+		if(file.exists() == false) {
+			return Messages.FILEPATH_NOT_EXIST;
+		}
+		FileInputStream fis = null;
+
+		try {
+
+			oos.writeObject(file.getName());
+
+			fis = new FileInputStream(file);
+			byte[] buffer = new byte[Constants.BUFFER_SIZE];
+			Integer bytesRead = 0;
+			int count = 1;
+			while ((bytesRead = fis.read(buffer)) > 0) {
+				oos.writeObject(bytesRead);
+				oos.writeObject(Arrays.copyOf(buffer, buffer.length));
+				System.out.println("Chunk: " + count + " sent.");
+				count++;
+			}
+			fis.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return Messages.FILE_DOWNLOAD_SUCCESS;
+	}
+	
+	
+	
+	String validateGetFileCommand(String grpUsrPath) {
+		int index = grpUsrPath.indexOf("/");
+		String grpName = grpUsrPath.substring(0, index);
+		if(ServerStructures.groupMap.containsKey(grpName) == false) {
+			return Messages.GROUP_NOT_EXIST;
+		}
+		grpUsrPath = grpUsrPath.substring(index+1);
+		index = grpUsrPath.indexOf("/");
+		String username = grpUsrPath.substring(0, index);
+		if(ServerStructures.groupMap.get(grpName).contains(username) == false) {
+			return Messages.USER_NOT_IN_GROUP;
+		}
+//		grpUsrPath = grpUsrPath.substring(index+1);
+		String absPath = grpUsrPath.substring(index+1);
+		absPath = getFilePathForUser(username, absPath);
+		if(new File(absPath).exists() == false) {
+			return Messages.FILEPATH_NOT_EXIST;
+		}
+		return absPath;
+	}
 }

@@ -20,7 +20,7 @@ class ClientHandler extends Thread {
 	final ObjectInputStream ois;
 	final ObjectOutputStream oos;
 	final Socket socket;
-	private volatile boolean flag = true;
+	//private volatile boolean flag = true;
 
 	public ClientHandler(Socket s, ObjectInputStream ois, ObjectOutputStream oos) {
 		this.socket = s;
@@ -29,11 +29,13 @@ class ClientHandler extends Thread {
 	}
 
 	// This method will set flag as false
-	public void stopRunning() {
-		flag = false;
-	}
+//	public void stopRunning() {
+//		flag = false;
+//	}
 
+	/*
 	String receiveFile(String username, ServerUtilities su) throws Exception {
+
 		FileOutputStream fos = null;
 		byte[] buffer = new byte[Constants.BUFFER_SIZE];
 		String retValue = null;
@@ -77,17 +79,9 @@ class ClientHandler extends Thread {
 		return Messages.FILE_UPLOAD_SUCCESS;
 	}
 
-	String sendFile(String grpUsrPath, ServerUtilities su) {
-		int index = grpUsrPath.indexOf("/");
-		String grpName = grpUsrPath.substring(0, index);
-		grpUsrPath = grpUsrPath.substring(index+1);
-		index = grpUsrPath.indexOf("/");
-		String username = grpUsrPath.substring(0, index);
-		grpUsrPath = grpUsrPath.substring(index+1);
-		String filePath = grpUsrPath;
-		String homeDir = su.getUserHome(username);
+	
+	String sendFile(String filePath, ServerUtilities su) {
 		
-		filePath = homeDir+"/"+filePath;
 		File file = new File(filePath);
 		System.out.println("File path to send is: "+filePath);
 		if(file.exists() == false) {
@@ -115,6 +109,7 @@ class ClientHandler extends Thread {
 		}
 		return Messages.FILE_DOWNLOAD_SUCCESS;
 	}
+	*/
 	
 	@Override
 	public void run() {
@@ -161,7 +156,7 @@ class ClientHandler extends Thread {
 					if (username == null) {
 						replyMsg = Messages.USER_NOT_CONNECTED;
 					} else {
-						replyMsg = receiveFile(username, su);
+						replyMsg = su.receiveFile(username, ois);
 					}
 					System.out.println(replyMsg);
 					oos.writeObject(replyMsg);
@@ -240,7 +235,15 @@ class ClientHandler extends Thread {
 					if (username == null) {
 						replyMsg = Messages.USER_NOT_CONNECTED;
 					} else {
-						replyMsg = sendFile(tokens[1], su);
+						replyMsg = su.validateGetFileCommand(tokens[1]);
+						boolean flag = true;
+						if(replyMsg.equals(Messages.GROUP_NOT_EXIST) || replyMsg.equals(Messages.USER_NOT_IN_GROUP) || replyMsg.equals(Messages.FILEPATH_NOT_EXIST)) {
+							flag = false;
+						}
+						if(flag) {
+							oos.writeObject(Messages.COMMAND_VALIDATION_SUCCESS);
+							replyMsg = su.sendFile(replyMsg, oos);
+						}
 					}
 					oos.writeObject(replyMsg);
 

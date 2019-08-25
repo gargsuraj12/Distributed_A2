@@ -33,6 +33,7 @@ public class Messages {
 	public static final String JOIN_GROUP_SUCCESS = "User successfully added to the group.";
 	public static final String USER_NOT_IN_GROUP = "User does not belongs to this group!! Please choose another groupname.";
 	public static final String LEAVE_GROUP_SUCCESS = "User successfully removed from the group.";
-
+	public static final String COMMAND_VALIDATION_SUCCESS = "Valid Command.";
+	
 	public static final String CONNECTION_CLOSE_SUCCESS = "Connection is closed.";
 }

@@ -86,9 +86,15 @@ public class Client {
 				} else if (command.equalsIgnoreCase(Constants.SHARE_MSG) && tokens.length == 2) {
 
 				} else if (command.equalsIgnoreCase(Constants.GET_FILE) && tokens.length == 2) {
-					response = cu.downloadFile(username);
-					System.out.println("From Server: "+response);
-					
+					response = cu.getResponseFromServer();
+					if(response.equals(Messages.COMMAND_VALIDATION_SUCCESS)) {
+						System.out.println("From Server: Starting file downloading..");
+						response = cu.downloadFile(username);
+						System.out.println("From Server: "+response);
+					}
+					else {
+						System.out.println("From Server: "+response);
+					}
 				} else if (command.equalsIgnoreCase(Constants.EXIT) && tokens.length == 1) {
 					response = cu.getResponseFromServer();
 					System.out.println("From Server: "+response);
