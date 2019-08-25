@@ -1,16 +1,15 @@
 package server;
 
-import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileOutputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import common.Constants;
 import common.FileDetails;
@@ -20,7 +19,7 @@ class ClientHandler extends Thread {
 	final ObjectInputStream ois;
 	final ObjectOutputStream oos;
 	final Socket socket;
-	//private volatile boolean flag = true;
+	// private volatile boolean flag = true;
 
 	public ClientHandler(Socket s, ObjectInputStream ois, ObjectOutputStream oos) {
 		this.socket = s;
@@ -33,84 +32,6 @@ class ClientHandler extends Thread {
 //		flag = false;
 //	}
 
-	/*
-	String receiveFile(String username, ServerUtilities su) throws Exception {
-
-		FileOutputStream fos = null;
-		byte[] buffer = new byte[Constants.BUFFER_SIZE];
-		String retValue = null;
-		String filePath = su.getUserHome(username);
-		// 1. Read file name.
-		Object o = ois.readObject();
-		if (o instanceof String) {
-			filePath += "/" + o.toString();
-			fos = new FileOutputStream(filePath);
-		} else {
-			return Messages.FILENAME_READ_ERROR;
-		}
-
-		System.out.println("Location where the file to be written: " + filePath);
-
-		// 2. Read file to the end.
-		Integer bytesRead = 0;
-		do {
-			o = ois.readObject();
-			if (!(o instanceof Integer)) {
-				retValue = Messages.CURR_CHUNK_SIZE_READ_ERROR;
-				break;
-			}
-
-			bytesRead = (Integer) o;
-			o = ois.readObject();
-			if (!(o instanceof byte[])) {
-				retValue = Messages.CURR_CHUNK_DATA_READ_ERROR;
-			}
-
-			buffer = (byte[]) o;
-			// 3. Write data to output file.
-			fos.write(buffer, 0, bytesRead);
-
-		} while (bytesRead == Constants.BUFFER_SIZE);
-
-		fos.close();
-		if (retValue != null) {
-			return retValue;
-		}
-		return Messages.FILE_UPLOAD_SUCCESS;
-	}
-
-	
-	String sendFile(String filePath, ServerUtilities su) {
-		
-		File file = new File(filePath);
-		System.out.println("File path to send is: "+filePath);
-		if(file.exists() == false) {
-			return Messages.FILEPATH_NOT_EXIST;
-		}
-		FileInputStream fis = null;
-
-		try {
-
-			oos.writeObject(file.getName());
-
-			fis = new FileInputStream(file);
-			byte[] buffer = new byte[Constants.BUFFER_SIZE];
-			Integer bytesRead = 0;
-			int count = 1;
-			while ((bytesRead = fis.read(buffer)) > 0) {
-				oos.writeObject(bytesRead);
-				oos.writeObject(Arrays.copyOf(buffer, buffer.length));
-				System.out.println("Chunk: " + count + " sent.");
-				count++;
-			}
-			fis.close();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		return Messages.FILE_DOWNLOAD_SUCCESS;
-	}
-	*/
-	
 	@Override
 	public void run() {
 
@@ -136,11 +57,11 @@ class ClientHandler extends Thread {
 
 				if (command.equalsIgnoreCase(Constants.CREATE_USER) && tokens.length == 2) {
 					username = tokens[1];
-					if (ServerStructures.usersMap.containsKey(username)
+					if (ServerStructures.userMap.containsKey(username)
 							&& ServerStructures.activeUserSet.contains(username)) {
 						replyMsg = Messages.USER_ALREADY_CONNECTED;
 
-					} else if (ServerStructures.usersMap.containsKey(username)
+					} else if (ServerStructures.userMap.containsKey(username)
 							&& ServerStructures.activeUserSet.contains(username) == false) {
 						ServerStructures.activeUserSet.add(username);
 						replyMsg = Messages.USER_LOGIN_SUCCESS;
@@ -237,10 +158,11 @@ class ClientHandler extends Thread {
 					} else {
 						replyMsg = su.validateGetFileCommand(tokens[1]);
 						boolean flag = true;
-						if(replyMsg.equals(Messages.GROUP_NOT_EXIST) || replyMsg.equals(Messages.USER_NOT_IN_GROUP) || replyMsg.equals(Messages.FILEPATH_NOT_EXIST)) {
+						if (replyMsg.equals(Messages.GROUP_NOT_EXIST) || replyMsg.equals(Messages.USER_NOT_IN_GROUP)
+								|| replyMsg.equals(Messages.FILEPATH_NOT_EXIST)) {
 							flag = false;
 						}
-						if(flag) {
+						if (flag) {
 							oos.writeObject(Messages.COMMAND_VALIDATION_SUCCESS);
 							replyMsg = su.sendFile(replyMsg, oos);
 						}
@@ -248,7 +170,7 @@ class ClientHandler extends Thread {
 					oos.writeObject(replyMsg);
 
 				} else if (command.equalsIgnoreCase(Constants.EXIT) && tokens.length == 1) {
-					if(ServerStructures.activeUserSet.contains(username)) {
+					if (ServerStructures.activeUserSet.contains(username)) {
 						ServerStructures.activeUserSet.remove(username);
 					}
 					replyMsg = Messages.CONNECTION_CLOSE_SUCCESS;
@@ -262,7 +184,8 @@ class ClientHandler extends Thread {
 				e.printStackTrace();
 			}
 		}
-		System.out.println("Exiting thread for connection: "+socket.getRemoteSocketAddress());
+		ServerStructures.serialize();
+		System.out.println("Exiting thread for connection: " + socket.getRemoteSocketAddress());
 		try {
 			oos.close();
 			ois.close();
@@ -278,11 +201,15 @@ class ClientHandler extends Thread {
 
 public class Server {
 
+	@SuppressWarnings("unchecked")
 	public static void main(String[] args) throws IOException {
 		int localPort = Integer.parseInt(args[0]);
 		@SuppressWarnings("resource")
 		ServerSocket serverSocket = new ServerSocket(localPort);
 		System.out.println("Server socket created and server listening at: " + serverSocket.getLocalSocketAddress());
+
+		ServerStructures.deserialize();
+
 		while (true) {
 			Socket socket = null;
 			try {

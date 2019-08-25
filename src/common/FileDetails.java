@@ -2,15 +2,15 @@ package common;
 
 import java.io.Serializable;
 
-public class FileDetails implements Serializable{
+public class FileDetails implements Serializable {
 	private static final long serialVersionUID = 1L;
 	private String fileName;
 	private String filePath;
-	
+
 	public FileDetails() {
 		super();
 	}
-	
+
 	public FileDetails(String fileName, String filePath) {
 		super();
 		this.fileName = fileName;
@@ -32,6 +32,4 @@ public class FileDetails implements Serializable{
 	public void setFilePath(String filePath) {
 		this.filePath = filePath;
 	}
-	
-	
 }

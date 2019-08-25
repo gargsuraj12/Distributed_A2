@@ -81,7 +81,7 @@ public class ServerUtilities {
 	} 
 	
 	String createUser(String username) throws Exception {
-		if (ServerStructures.usersMap.containsKey(username)) {
+		if (ServerStructures.userMap.containsKey(username)) {
 			return Messages.USERNAME_ALREADY_EXIST;
 		}
 		String homeDir = getUserHome(username);
@@ -91,7 +91,7 @@ public class ServerUtilities {
 			System.out.println("Error while creating folder for new user..");
 			return Messages.CREATE_USER_ERROR;
 		}
-		ServerStructures.usersMap.put(username, new HashSet<String>());
+		ServerStructures.userMap.put(username, new HashSet<String>());
 		return Messages.CREATE_USER_SUCCESS;
 	}
 	
@@ -140,7 +140,7 @@ public class ServerUtilities {
 		set.add(username);
 		ServerStructures.groupMap.put(groupname, set);
 		
-		ServerStructures.usersMap.get(username).add(groupname);
+		ServerStructures.userMap.get(username).add(groupname);
 		return Messages.CREATE_GROUP_SUCCESS;
 	}
 	
@@ -163,7 +163,7 @@ public class ServerUtilities {
 			return Messages.USER_EXIST_IN_GROUP;
 		}
 		ServerStructures.groupMap.get(groupname).add(username);
-		ServerStructures.usersMap.get(username).add(groupname);
+		ServerStructures.userMap.get(username).add(groupname);
 		return Messages.JOIN_GROUP_SUCCESS;
 	}
 	
@@ -175,7 +175,7 @@ public class ServerUtilities {
 			return Messages.USER_NOT_IN_GROUP;
 		}
 		ServerStructures.groupMap.get(groupname).remove(username);
-		ServerStructures.usersMap.get(username).remove(groupname);
+		ServerStructures.userMap.get(username).remove(groupname);
 		return Messages.LEAVE_GROUP_SUCCESS;
 	}
 	

@@ -2,12 +2,12 @@ package common;
 
 public class Messages {
 	public static final String SAMPLE = "";
-	public static final String INVALID_FORMAT = "Invalid formet of the received object.";
+	public static final String INVALID_FORMAT = "Invalid format of the received object.";
 	public static final String INVALID_COMMAND = "Invalid Command !! Please try again.";
 	public static final String USERNAME_ALREADY_EXIST = "Username not available!! Please choose another username.";
 	public static final String USER_ALREADY_CONNECTED = "This user is already connected with server!!";
 	public static final String USER_NOT_CONNECTED = "This user is not connected with server!! Use create_user command to connect to server";
-	public static final String USER_LOGIN_SUCCESS = "This user is connected successfully with server!!";
+	public static final String USER_LOGIN_SUCCESS = "Login successful for the user!!";
 	public static final String CREATE_USER_ERROR = "Error while creating the user!! Please try again.";
 	public static final String CREATE_USER_SUCCESS = "User successfully registered at server.";
 	public static final String FILENAME_READ_ERROR = "Error while reading the filename!!";
