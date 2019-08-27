@@ -15,6 +15,10 @@ public class Messages {
 	public static final String CURR_CHUNK_DATA_READ_ERROR = "Error while reading the current chunk data!!";
 	public static final String FILE_UPLOAD_ERROR = "Error while upoading the file!! Please try again.";
 	public static final String FILE_UPLOAD_SUCCESS = "File successfully uploaded.";
+	public static final String SERVER_UDP_SOCKET_CONNECTED = "UDP Socket Created..";
+	public static final String SERVER_UDP_SOCKET_NOT_CONNECTED = "UDP Socket Creation Faliure..";
+	public static final String FILE_UDP_UPLOAD_ERROR = "UDP upload failure!! Please try again.";
+	public static final String FILE_UDP_UPLOAD_SUCCESS = "UDP upload success.";
 	public static final String FILE_DOWNLOAD_ERROR = "Error while downloading the file!! Please try again.";
 	public static final String FILE_DOWNLOAD_SUCCESS = "File successfully downloaded.";
 	public static final String FOLDER_CREATE_ERROR = "Error while creating the folder!! Please try again.";

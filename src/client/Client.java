@@ -51,7 +51,14 @@ public class Client {
 					System.out.println("From Server: " + response);
 					
 				} else if (command.equalsIgnoreCase(Constants.UPLOAD_FILE_UDP) && tokens.length == 2) {
-
+					response = cu.getResponseFromServer();
+					System.out.println("From Server: " + response);
+					if(response.equals(Messages.SERVER_UDP_SOCKET_CONNECTED)) {
+						cu.uploadUDP(tokens[1]);
+						response = cu.getResponseFromServer();
+						System.out.println(response);
+					}
+					
 				} else if (command.equalsIgnoreCase(Constants.CREATE_FOLDER) && tokens.length == 2) {
 					response = cu.getResponseFromServer();
 					System.out.println("From Server: "+response);

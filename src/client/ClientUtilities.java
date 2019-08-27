@@ -6,6 +6,9 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.net.DatagramPacket;
+import java.net.DatagramSocket;
+import java.net.InetAddress;
 import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.List;
@@ -87,7 +90,7 @@ public class ClientUtilities {
 			if (ob instanceof List<?>) {
 				grpList = (List<String>) ob;
 
-			} else if(ob == null){
+			} else if (ob == null) {
 				System.out.println(Messages.NO_GROUP_EXIST);
 				return;
 			} else {
@@ -111,7 +114,7 @@ public class ClientUtilities {
 			if (ob instanceof Map<?, ?>) {
 				grpDetails = (Map<String, List<FileDetails>>) ob;
 
-			} else if(ob instanceof String){
+			} else if (ob instanceof String) {
 				System.out.println(ob.toString());
 				return;
 			} else {
@@ -142,7 +145,7 @@ public class ClientUtilities {
 		try {
 			o = ois.readObject();
 			if (o instanceof String) {
-				filePath += "/"+ o.toString();
+				filePath += "/" + o.toString();
 				fos = new FileOutputStream(filePath);
 			} else {
 				return Messages.FILENAME_READ_ERROR;
@@ -188,22 +191,48 @@ public class ClientUtilities {
 
 		return retValue;
 	}
-	
+
 	boolean checkAndPrintMessages() {
 		try {
 			Object ob = ois.readObject();
-			if(ob instanceof String && ob.toString().equals(Constants.ENTER_COMMAND)) {
+			if (ob instanceof String && ob.toString().equals(Constants.ENTER_COMMAND)) {
 				return false;
 			}
-			if(ob instanceof List<?>) {
+			if (ob instanceof List<?>) {
 				@SuppressWarnings("unchecked")
 				List<String> messages = (List<String>) ob;
-				for(String msg : messages) {
+				for (String msg : messages) {
 					System.out.println(msg);
 				}
 			}
 			return true;
 		} catch (ClassNotFoundException | IOException e) {
+			e.printStackTrace();
+		}
+		return false;
+	}
+
+	boolean uploadUDP(String filePath) {
+		try {
+			DatagramSocket dSoc = new DatagramSocket(Client.localPort, Client.localIP);
+			
+			File file = new File(filePath);
+			FileInputStream fis = new FileInputStream(file);
+			byte[] buf = new byte[63*1024];
+			int len;
+			
+			DatagramPacket pkg = new DatagramPacket(buf, buf.length, Client.remoteIP, Client.remotePort);
+			while ((len = fis.read(buf)) != -1) {
+				dSoc.send(pkg);
+			}
+			buf = "end".getBytes();
+			DatagramPacket endpkg = new DatagramPacket(buf, buf.length, Client.remoteIP, Client.remotePort);
+			System.out.println("Send the file.");
+			dSoc.send(endpkg);
+			fis.close();
+			dSoc.close();
+			return true;
+		} catch (IOException e) {
 			e.printStackTrace();
 		}
 		return false;

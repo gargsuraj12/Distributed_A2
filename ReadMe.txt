@@ -8,3 +8,10 @@ eg: java server.Server 4000
 Run Client from 'src' folder as:
 java client.Client <remoteIP> <remotePort> <localIP> <localPort>
 eg: java client.Client 10.1.37.203 4000 10.1.37.204 4001
+
+
+Note: Check getUserHome() in ServerUtilities.java if gives error while user creation. 
+
+Extra Functionalities implemented:
+- Error Handling
+- Message Buffer for ofline users

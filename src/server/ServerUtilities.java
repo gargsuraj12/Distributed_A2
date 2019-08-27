@@ -2,10 +2,14 @@ package server;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.net.DatagramPacket;
+import java.net.DatagramSocket;
+import java.net.SocketException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -253,6 +257,50 @@ public class ServerUtilities {
 		}
 		return Messages.FILE_UPLOAD_SUCCESS;
 	}
+	
+	DatagramSocket createUDPSocket(int localPort) {
+		try {
+			DatagramSocket dSoc = new DatagramSocket(localPort);
+			return dSoc;
+		} catch (SocketException e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+	
+	String receiveFileUDP(String username, String fileName, DatagramSocket dSoc) {
+		if (fileName.indexOf('/') != -1) {
+			fileName = fileName.substring(fileName.lastIndexOf('/') + 1);
+		}
+		fileName = getUserHome(username)+"/"+fileName;
+		try {
+
+			File f1 = new File(fileName);
+			// f1.createNewFile();
+			FileOutputStream fos;
+			fos = new FileOutputStream(f1);
+			byte[] buf = new byte[63 * 1024];
+			DatagramPacket pkg = new DatagramPacket(buf, buf.length);
+			
+			while (true) {
+				dSoc.receive(pkg);
+				if (new String(pkg.getData(), 0, pkg.getLength()).equals("end")) {
+					System.out.println("Documents received");
+					fos.close();
+					dSoc.close();
+					break;
+				}
+				fos.write(pkg.getData(), 0, pkg.getLength());
+				fos.flush();
+			}
+			fos.close();
+			dSoc.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+			return Messages.FILE_UDP_UPLOAD_ERROR;
+		}
+		return Messages.FILE_UDP_UPLOAD_SUCCESS;
+	}
 
 	String sendFile(String filePath, ObjectOutputStream oos) {
 
@@ -306,29 +354,29 @@ public class ServerUtilities {
 		}
 		return absPath;
 	}
-	
-	String writeMsgInBuffer(String username, String [] tokens) {
+
+	String writeMsgInBuffer(String username, String[] tokens) {
 		String message = "";
-		for(int i=1; i<tokens.length; i++) {
-			message += tokens[i]+" ";
+		for (int i = 1; i < tokens.length; i++) {
+			message += tokens[i] + " ";
 		}
-		
+
 		Set<String> groups = ServerStructures.userMap.get(username);
 		Set<String> users = new HashSet<String>();
-		for(String grp : groups) {
-			for(String user : ServerStructures.groupMap.get(grp)) {
+		for (String grp : groups) {
+			for (String user : ServerStructures.groupMap.get(grp)) {
 				users.add(user);
 			}
 		}
-		message = "Message From "+username+": "+message;
+		message = "Message From " + username + ": " + message;
 		List<String> list = null;
-		for(String user : users) {
-			if(user.equals(username)) {
+		for (String user : users) {
+			if (user.equals(username)) {
 				continue;
 			}
-			if(ServerStructures.msgBuffer.containsKey(user)) {
+			if (ServerStructures.msgBuffer.containsKey(user)) {
 				ServerStructures.msgBuffer.get(user).add(message);
-			}else {
+			} else {
 				list = new ArrayList<String>();
 				list.add(message);
 				ServerStructures.msgBuffer.put(user, list);
@@ -336,9 +384,9 @@ public class ServerUtilities {
 		}
 		return Messages.MESSAGE_SEND_SUCCESS;
 	}
-	
+
 	boolean checkAndSendMessages(String username, ObjectOutputStream oos) throws IOException {
-		if(username != null && ServerStructures.msgBuffer.containsKey(username)) {
+		if (username != null && ServerStructures.msgBuffer.containsKey(username)) {
 			List<String> list = ServerStructures.msgBuffer.get(username);
 			oos.writeObject(list);
 			ServerStructures.msgBuffer.remove(username);

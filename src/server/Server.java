@@ -3,6 +3,7 @@ package server;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.net.DatagramSocket;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.List;
@@ -16,12 +17,14 @@ class ClientHandler extends Thread {
 	final ObjectInputStream ois;
 	final ObjectOutputStream oos;
 	final Socket socket;
+	private int localPort;
 	// private volatile boolean flag = true;
 
-	public ClientHandler(Socket s, ObjectInputStream ois, ObjectOutputStream oos) {
+	public ClientHandler(Socket s, ObjectInputStream ois, ObjectOutputStream oos, int port) {
 		this.socket = s;
 		this.ois = ois;
 		this.oos = oos;
+		this.localPort = port;
 	}
 
 	// This method will set flag as false
@@ -90,7 +93,22 @@ class ClientHandler extends Thread {
 					oos.writeObject(replyMsg);
 
 				} else if (command.equalsIgnoreCase(Constants.UPLOAD_FILE_UDP) && tokens.length == 2) {
-
+					if (username == null) {
+						replyMsg = Messages.USER_NOT_CONNECTED;
+						System.out.println(replyMsg);
+						oos.writeObject(replyMsg);
+						continue;
+					}
+					DatagramSocket dSoc = su.createUDPSocket(this.localPort);
+					if(dSoc == null) {
+						oos.writeObject(Messages.SERVER_UDP_SOCKET_NOT_CONNECTED);
+						continue;
+					}else {
+						oos.writeObject(Messages.SERVER_UDP_SOCKET_CONNECTED);
+					}
+					replyMsg = su.receiveFileUDP(username, tokens[1], dSoc);
+					oos.writeObject(replyMsg);
+					
 				} else if (command.equalsIgnoreCase(Constants.CREATE_FOLDER) && tokens.length == 2) {
 					if (username == null) {
 						replyMsg = Messages.USER_NOT_CONNECTED;
@@ -225,7 +243,7 @@ public class Server {
 				ObjectOutputStream oos = new ObjectOutputStream(socket.getOutputStream());
 				ObjectInputStream ois = new ObjectInputStream(socket.getInputStream());
 				System.out.println("Assigning new thread for this client..");
-				new ClientHandler(socket, ois, oos).start();
+				new ClientHandler(socket, ois, oos, localPort).start();
 			} catch (Exception e) {
 				socket.close();
 				e.printStackTrace();
