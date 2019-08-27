@@ -18,7 +18,7 @@ public class Client {
 	static InetAddress localIP;
 	static int localPort;
 
-	private void executeClient() {
+	private void executeTCPClient() {
 		Scanner scanner = new Scanner(System.in);
 		String command = null, response = null, input = null;
 		String[] tokens = null;
@@ -31,7 +31,9 @@ public class Client {
 
 			ClientUtilities cu = new ClientUtilities(ois, oos);
 			while (true) {
-				System.out.print(ois.readObject());
+				cu.checkAndPrintMessages();
+				//System.out.print(ois.readObject());
+				System.out.print(Constants.ENTER_COMMAND);
 				input = scanner.nextLine();
 				
 				// Sending command to server
@@ -119,6 +121,6 @@ public class Client {
 		} catch (UnknownHostException e) {
 			e.printStackTrace();
 		}
-		new Client().executeClient();
+		new Client().executeTCPClient();
 	}
 }

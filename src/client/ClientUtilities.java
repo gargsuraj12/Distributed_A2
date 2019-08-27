@@ -87,6 +87,9 @@ public class ClientUtilities {
 			if (ob instanceof List<?>) {
 				grpList = (List<String>) ob;
 
+			} else if(ob == null){
+				System.out.println(Messages.NO_GROUP_EXIST);
+				return;
 			} else {
 				System.out.println(Messages.INVALID_FORMAT);
 				return;
@@ -108,6 +111,9 @@ public class ClientUtilities {
 			if (ob instanceof Map<?, ?>) {
 				grpDetails = (Map<String, List<FileDetails>>) ob;
 
+			} else if(ob instanceof String){
+				System.out.println(ob.toString());
+				return;
 			} else {
 				System.out.println(Messages.INVALID_FORMAT);
 				return;
@@ -181,5 +187,25 @@ public class ClientUtilities {
 		}
 
 		return retValue;
+	}
+	
+	boolean checkAndPrintMessages() {
+		try {
+			Object ob = ois.readObject();
+			if(ob instanceof String && ob.toString().equals(Constants.ENTER_COMMAND)) {
+				return false;
+			}
+			if(ob instanceof List<?>) {
+				@SuppressWarnings("unchecked")
+				List<String> messages = (List<String>) ob;
+				for(String msg : messages) {
+					System.out.println(msg);
+				}
+			}
+			return true;
+		} catch (ClassNotFoundException | IOException e) {
+			e.printStackTrace();
+		}
+		return false;
 	}
 }

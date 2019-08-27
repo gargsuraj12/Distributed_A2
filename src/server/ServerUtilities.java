@@ -18,6 +18,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import javax.print.attribute.standard.Severity;
+
 import common.Constants;
 import common.FileDetails;
 import common.Messages;
@@ -303,5 +305,45 @@ public class ServerUtilities {
 			return Messages.FILEPATH_NOT_EXIST;
 		}
 		return absPath;
+	}
+	
+	String writeMsgInBuffer(String username, String [] tokens) {
+		String message = "";
+		for(int i=1; i<tokens.length; i++) {
+			message += tokens[i]+" ";
+		}
+		
+		Set<String> groups = ServerStructures.userMap.get(username);
+		Set<String> users = new HashSet<String>();
+		for(String grp : groups) {
+			for(String user : ServerStructures.groupMap.get(grp)) {
+				users.add(user);
+			}
+		}
+		message = "Message From "+username+": "+message;
+		List<String> list = null;
+		for(String user : users) {
+			if(user.equals(username)) {
+				continue;
+			}
+			if(ServerStructures.msgBuffer.containsKey(user)) {
+				ServerStructures.msgBuffer.get(user).add(message);
+			}else {
+				list = new ArrayList<String>();
+				list.add(message);
+				ServerStructures.msgBuffer.put(user, list);
+			}
+		}
+		return Messages.MESSAGE_SEND_SUCCESS;
+	}
+	
+	boolean checkAndSendMessages(String username, ObjectOutputStream oos) throws IOException {
+		if(username != null && ServerStructures.msgBuffer.containsKey(username)) {
+			List<String> list = ServerStructures.msgBuffer.get(username);
+			oos.writeObject(list);
+			ServerStructures.msgBuffer.remove(username);
+			return true;
+		}
+		return false;
 	}
 }

@@ -6,6 +6,7 @@ public class Constants {
 	public static final int BUFFER_SIZE = 1024;
 	public static final String ROOT_PATH = System.getProperty("user_dir");
 	
+	public static final String ENTER_COMMAND = "Enter the command: ";
 	public static final String CREATE_USER = "create_user";
 	public static final String UPLOAD_FILE = "upload";
 	public static final String UPLOAD_FILE_UDP = "upload_udp";

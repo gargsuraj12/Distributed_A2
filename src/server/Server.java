@@ -41,7 +41,17 @@ class ClientHandler extends Thread {
 		while (true) {
 
 			try {
-				oos.writeObject("Enter the command: ");
+//				if (username != null && ServerStructures.msgBuffer.containsKey(username)) {
+//					List<String> list = ServerStructures.msgBuffer.get(username);
+//					oos.writeObject(list);
+//					ServerStructures.msgBuffer.remove(username);
+//				} else {
+//					oos.writeObject(Constants.ENTER_COMMAND);
+//				}
+				if(su.checkAndSendMessages(username, oos) == false) {
+					oos.writeObject(Constants.ENTER_COMMAND);
+				}
+				
 				ob = ois.readObject();
 				if (!(ob instanceof String)) {
 					oos.writeObject(Messages.INVALID_FORMAT);
@@ -141,11 +151,11 @@ class ClientHandler extends Thread {
 					}
 					oos.writeObject(replyMsg);
 
-				} else if (command.equalsIgnoreCase(Constants.SHARE_MSG) && tokens.length == 2) {
+				} else if (command.equalsIgnoreCase(Constants.SHARE_MSG) && tokens.length >= 2) {
 					if (username == null) {
 						replyMsg = Messages.USER_NOT_CONNECTED;
 					} else {
-
+						replyMsg = su.writeMsgInBuffer(username, tokens);
 					}
 					oos.writeObject(replyMsg);
 

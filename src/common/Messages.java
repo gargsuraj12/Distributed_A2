@@ -24,6 +24,7 @@ public class Messages {
 	public static final String FILEPATH_NOT_EXIST = "File path does not exist at server.";
 	public static final String MOVE_FILE_ERROR = "Error while moving the file!! Please try again.";
 	public static final String MOVE_FILE_SUCCESS = "File successfully moved.";
+	public static final String NO_GROUP_EXIST = "No group exist at the server!!";
 	public static final String GROUP_ALREADY_EXIST = "Another group with same groupname already exist!! Please choose another groupname.";
 	public static final String CREATE_GROUP_ERROR = "Error while creating the group!! Please try again.";
 	public static final String CREATE_GROUP_SUCCESS = "Group successfully created.";
@@ -34,6 +35,7 @@ public class Messages {
 	public static final String USER_NOT_IN_GROUP = "User does not belongs to this group!! Please choose another groupname.";
 	public static final String LEAVE_GROUP_SUCCESS = "User successfully removed from the group.";
 	public static final String COMMAND_VALIDATION_SUCCESS = "Valid Command.";
+	public static final String MESSAGE_SEND_SUCCESS = "Message will be send by the server to the other users.";
 	
 	public static final String CONNECTION_CLOSE_SUCCESS = "Connection is closed.";
 }
