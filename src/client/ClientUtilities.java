@@ -138,7 +138,6 @@ public class ClientUtilities {
 		byte[] buffer = new byte[Constants.BUFFER_SIZE];
 		String retValue = null;
 		String filePath = getUserHome();
-//		System.out.println("User home path is: "+filePath);
 
 		// 1. Read file name.
 		Object o;
