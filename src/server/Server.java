@@ -225,7 +225,8 @@ class ClientHandler extends Thread {
 }
 
 public class Server {
-
+	
+	//main function
 	public static void main(String[] args) throws IOException {
 		int localPort = Integer.parseInt(args[0]);
 		@SuppressWarnings("resource")
