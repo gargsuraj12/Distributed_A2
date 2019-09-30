@@ -11,6 +11,9 @@ Run Client from 'src' folder as:
 
 
 Commands Formats:
+
+Following are the below commands to execute the program : 
+
 1. 	create_user <username>
 		- If not registered at server then this command will register the user and create a default directory for the user at the server otherwise if user if 			already registered then will try to login for the user if another user with the same username has not already connected with the server.
 
