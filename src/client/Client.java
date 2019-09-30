@@ -116,7 +116,6 @@ public class Client {
 		} catch (IOException | ClassNotFoundException e) {
 			e.printStackTrace();
 		}
-		// conn.closeConnection(socket);
 	}
 
 	public static void main(String[] args) {
