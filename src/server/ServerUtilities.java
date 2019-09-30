@@ -59,7 +59,8 @@ public class ServerUtilities {
 		}
 		return false;
 	}
-
+	
+	//to list files
 	private void listFiles(String path, String userHomeDir, List<FileDetails> fileList) {
 		File folder = new File(path);
 		File[] files = folder.listFiles();
